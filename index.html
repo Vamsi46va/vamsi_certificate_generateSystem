@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .certificate-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .certificate {
+            background-color: #fff;
+            border: 15px solid #d4af37;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-image: 
+                linear-gradient(45deg, #f5f5f5 25%, transparent 25%),
+                linear-gradient(-45deg, #f5f5f5 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f5f5f5 75%),
+                linear-gradient(-45deg, transparent 75%, #f5f5f5 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        .certificate-header {
+            border-bottom: 2px solid #d4af37;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .certificate-title {
+            color: #2c3e50;
+            font-size: 48px;
+            margin-bottom: 30px;
+            font-family: 'Times New Roman', serif;
+            text-transform: uppercase;
+        }
+
+        .recipient-name {
+            color: #e74c3c;
+            font-size: 36px;
+            margin: 20px 0;
+            font-family: 'Brush Script MT', cursive;
+        }
+
+        .certificate-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        .certificate-course {
+            color: #2c3e50;
+            font-size: 24px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .signature {
+            text-align: center;
+        }
+
+        .signature hr {
+            width: 200px;
+            margin: 10px auto;
+            border-top: 1px solid #000;
+        }
+
+        .certificate-seal {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRhZjM3IiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=') no-repeat center center;
+        }
+
+        .qr-code {
+            margin-top: 20px;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        .share-buttons {
+            margin-top: 20px;
+        }
+
+        .share-buttons button {
+            margin: 0 10px;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .signature-upload {
+            margin: 15px 0;
+        }
+
+        .signature-preview {
+            max-width: 200px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+
+        .custom-signature {
+            width: 200px;
+            height: 100px;
+            border: 1px solid #000;
+            margin: 10px auto;
+        }
+
+        .logo-preview {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            max-width: 100px;
+            max-height: 100px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    
+<div class="container text-center mt-5" id="introSection">
+        <h1>Welcome to Vamsi Naik's Certificate Generator!</h1>
+        <p>Your go-to tool for creating professional certificates with ease.</p>
+        <p><a href="#" class="btn btn-primary" id="registerPageLink">Get Started</a></p>
+    </div>
+
+   
+    <div class="modal fade" id="registerModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="regUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="regUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="regPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <button type="button" class="btn btn-link" id="loginLink">Back to Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="modal fade" id="authModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-link" id="registerLink">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5" id="mainContent" style="display: none;">
+        
+        <div class="row mb-5">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">Generate Certificate</h3>
+                        <button id="logoutBtn" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="certificateForm">
+                            <div class="mb-3">
+                                <label for="recipientName" class="form-label">Recipient Name</label>
+                                <input type="text" class="form-control" id="recipientName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="courseName" class="form-label">Course/Achievement</label>
+                                <input type="text" class="form-control" id="courseName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="completionDate" class="form-label">Date of Completion</label>
+                                <input type="date" class="form-control" id="completionDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="certificateId" class="form-label">Certificate ID</label>
+                                <input type="text" class="form-control" id="certificateId" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ceoName" class="form-label">CEO Name</label>
+                                <input type="text" class="form-control" id="ceoName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fontSelect" class="form-label">Choose Font</label>
+                                <select class="form-select" id="fontSelect">
+                                    <option value="'Times New Roman', serif">Times New Roman</option>
+                                    <option value="'Arial', sans-serif">Arial</option>
+                                    <option value="'Courier New', monospace">Courier New</option>
+                                    <option value="'Georgia', serif">Georgia</option>
+                                    <option value="'Verdana', sans-serif">Verdana</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="colorSelect" class="form-label">Choose Text Color</label>
+                                <input type="color" class="form-control" id="colorSelect" value="#2c3e50">
+                            </div>
+                            <div class="mb-3">
+                                <label for="bgColorSelect" class="form-label">Choose Background Color</label>
+                                <input type="color" class="form-control" id="bgColorSelect" value="#ffffff">
+                            </div>
+                            <div class="mb-3">
+                                <label for="textSizeSelect" class="form-label">Choose Text Size</label>
+                                <select class="form-select" id="textSizeSelect">
+                                    <option value="18px">Small</option>
+                                    <option value="24px">Medium</option>
+                                    <option value="30px">Large</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customMessage" class="form-label">Custom Message (optional)</label>
+                                <textarea class="form-control" id="customMessage" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="logoUpload" class="form-label">Upload Logo (optional)</label>
+                                <input type="file" class="form-control" id="logoUpload" accept="image/*">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="addWatermark">
+                                <label class="form-check-label" for="addWatermark">Add Watermark</label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Course Director Signature</label>
+                                <input type="file" class="form-control" id="directorSignatureUpload" accept="image/*">
+                                <img id="directorSignaturePreview" class="signature-preview" style="display: none;">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">CEO Signature</label>
+                                <input type="file" class="form-control" id="ceoSignatureUpload" accept="image/*">
+                                <img id="ceoSignaturePreview" class="signature-preview" style="display: none;">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Generate Certificate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate Preview -->
+        <div id="certificatePreview" class="d-none">
+            <div class="certificate-container">
+                <div class="certificate" id="certificateToDownload">
+                    <div class="certificate-header">
+                        <img id="logoPreview" class="logo-preview" style="display: none;">
+                        <h1 class="certificate-title">Certificate of Achievement</h1>
+                    </div>
+                    <p class="certificate-text">This is to certify that</p>
+                    <h2 class="recipient-name" id="previewName"></h2>
+                    <p class="certificate-text">has successfully completed</p>
+                    <h3 class="certificate-course" id="previewCourse"></h3>
+                    <p class="certificate-text">on <span id="previewDate"></span></p>
+                    <p class="certificate-text">Certificate ID: <span id="previewId"></span></p>
+                    <p class="certificate-text" id="previewCustomMessage"></p>
+                    
+                    <div class="signature-section">
+                        <div class="signature">
+                            <img id="previewDirectorSignature" class="signature-preview" style="display: none;">
+                            <p>Course Director</p>
+                            <hr>
+                        </div>
+                        <div class="signature">
+                            <img id="previewCeoSignature" class="signature-preview" style="display: none;">
+                            <p id="previewCeoName">CEO</p>
+                            <hr>
+                        </div>
+                    </div>
+                    <div class="certificate-seal"></div>
+                    <canvas id="qrCode" class="qr-code"></canvas>
+                    <div class="watermark" id="watermark" style="display: none;">CONFIDENTIAL</div>
+                </div>
+
+                <!-- Download and Share Buttons -->
+                <div class="text-center share-buttons">
+                    <button id="downloadBtn" class="btn btn-success">
+                        <i class="fas fa-download"></i> Download Certificate
+                    </button>
+                    <button id="shareBtn" class="btn btn-primary" onclick="shareCertificate()">
+                        <i class="fas fa-share-alt"></i> Share Certificate
+                    </button>
+                </div>
+            </div>
+        </div>
+
+       
+        <div id="savedCertificates" class="container mt-5">
+            <h4>Saved Certificates</h4>
+            <ul id="certificateList" class="list-group"></ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+        
+        document.getElementById('registerPageLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('introSection').style.display = 'none';
+            registerModal.show();
+        });
+
+        
+        let currentUser = null;
+        const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+        const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+        const mainContent = document.getElementById('mainContent');
+
+      
+        const loadUsers = () => JSON.parse(localStorage.getItem('users')) || {};
+
+        
+        const saveUsers = (users) => localStorage.setItem('users', JSON.stringify(users));
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const users = loadUsers();
+
+            if (users[username] && users[username] === password) {
+                currentUser = username;
+                authModal.hide();
+                mainContent.style.display = 'block';
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const users = loadUsers();
+
+            if (users[username]) {
+                alert('Username already exists');
+            } else {
+                users[username] = password;
+                saveUsers(users);
+                registerModal.hide();
+                authModal.show();
+                alert('Registration successful! Please log in.');
+            }
+        });
+
+        document.getElementById('registerLink').addEventListener('click', function() {
+            authModal.hide();
+            registerModal.show();
+        });
+
+        document.getElementById('loginLink').addEventListener('click', function() {
+            registerModal.hide();
+            authModal.show();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            currentUser = null;
+            mainContent.style.display = 'none';
+            authModal.show();
+        });
+
+        
+        const certificateForm = document.getElementById('certificateForm');
+        const certificatePreview = document.getElementById('certificatePreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const certificateId = document.getElementById('certificateId');
+        const logoUpload = document.getElementById('logoUpload');
+        const logoPreview = document.getElementById('logoPreview');
+        const qrCodeElement = document.getElementById('qrCode');
+        const watermark = document.getElementById('watermark');
+        const certificateList = document.getElementById('certificateList');
+
+        
+        certificateId.value = 'CERT-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+        certificateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const recipientName = document.getElementById('recipientName').value;
+            const courseName = document.getElementById('courseName').value;
+            const completionDate = document.getElementById('completionDate').value;
+            const ceoName = document.getElementById('ceoName').value;
+            const selectedFont = document.getElementById('fontSelect').value;
+            const selectedColor = document.getElementById('colorSelect').value;
+            const selectedBgColor = document.getElementById('bgColorSelect').value;
+            const selectedTextSize = document.getElementById('textSizeSelect').value;
+            const customMessage = document.getElementById('customMessage').value;
+            const addWatermark = document.getElementById('addWatermark').checked;
+
+            document.getElementById('previewName').textContent = recipientName;
+            document.getElementById('previewCourse').textContent = courseName;
+            document.getElementById('previewDate').textContent = new Date(completionDate).toLocaleDateString();
+            document.getElementById('previewId').textContent = certificateId.value;
+            document.getElementById('previewCustomMessage').textContent = customMessage;
+            document.getElementById('previewCeoName').textContent = ceoName;
+
+            
+            const certificateToDownload = document.getElementById('certificateToDownload');
+            certificateToDownload.style.fontFamily = selectedFont;
+            certificateToDownload.style.color = selectedColor;
+            certificateToDownload.style.backgroundColor = selectedBgColor;
+            certificateToDownload.style.fontSize = selectedTextSize;
+
+            
+            watermark.style.display = addWatermark ? 'block' : 'none';
+
+            
+            const qrData = `Name: ${recipientName}\nCourse: ${courseName}\nDate: ${completionDate}\nID: ${certificateId.value}`;
+            qrCodeElement.innerHTML = '';
+            QRCode.toCanvas(qrCodeElement, qrData, { width: 100, height: 100 }, function(error) {
+                if (error) console.error(error);
+            });
+
+            // Save certificate data to local storage
+            const certificateData = {
+                recipientName,
+                courseName,
+                completionDate,
+                certificateId: certificateId.value,
+                customMessage
+            };
+            saveCertificate(certificateData);
+
+            certificatePreview.classList.remove('d-none');
+        });
+
+        logoUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    logoPreview.src = e.target.result;
+                    logoPreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('directorSignatureUpload').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewDirectorSignature').src = e.target.result;
+                    document.getElementById('previewDirectorSignature').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('ceoSignatureUpload').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewCeoSignature').src = e.target.result;
+                    document.getElementById('previewCeoSignature').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        downloadBtn.addEventListener('click', function() {
+            const certificate = document.getElementById('certificateToDownload');
+            html2canvas(certificate, {
+                scale: 2,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'certificate.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+
+        function saveCertificate(certificateData) {
+            let certificates = JSON.parse(localStorage.getItem('certificates')) || [];
+            certificates.push(certificateData);
+            localStorage.setItem('certificates', JSON.stringify(certificates));
+            displaySavedCertificates();
+        }
+
+        function displaySavedCertificates() {
+            const certificates = JSON.parse(localStorage.getItem('certificates')) || [];
+            certificateList.innerHTML = '';
+            certificates.forEach((cert, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.textContent = `Certificate ID: ${cert.certificateId}, Recipient: ${cert.recipientName}, Course: ${cert.courseName}`;
+                certificateList.appendChild(listItem);
+            });
+        }
+
+        displaySavedCertificates();
+
+        function shareCertificate() {
+            const certificate = document.getElementById('certificateToDownload');
+            html2canvas(certificate, {
+                scale: 2,
+                backgroundColor: null
+            }).then(canvas => {
+                canvas.toBlob(function(blob) {
+                    const filesArray = [
+                        new File(
+                            [blob],
+                            'certificate.png',
+                            {
+                                type: 'image/png',
+                                lastModified: new Date().getTime()
+                            }
+                        )
+                    ];
+
+                    if (navigator.share && navigator.canShare({ files: filesArray })) {
+                        navigator.share({
+                            files: filesArray,
+                            title: 'Certificate of Achievement',
+                            text: 'Check out my certificate!'
+                        }).catch(console.error);
+                    } else {
+                       
+                        const shareUrl = canvas.toDataURL('image/png');
+                        const popup = window.open('', '_blank', 'width=600,height=400');
+                        popup.document.write(`
+                            <html>
+                                <head>
+                                    <title>Share Certificate</title>
+                                </head>
+                                <body style="text-align: center;">
+                                    <img src="${shareUrl}" style="max-width: 100%;">
+                                    <p>Right-click the image and select "Save image as..." to download</p>
+                                </body>
+                            </html>
+                        `);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
